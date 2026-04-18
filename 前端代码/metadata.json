@@ -1,0 +1,6 @@
+{
+  "name": "Job Application Dashboard",
+  "description": "求职申请管理系统前端面板，包含今日待办、即将截止、状态统计等功能。",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
