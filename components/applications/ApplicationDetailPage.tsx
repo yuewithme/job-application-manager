@@ -99,14 +99,12 @@ export default function ApplicationDetailPage({
             <section className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col min-h-[300px]">
               <div className="px-4 py-[14px] border-b border-slate-200 font-semibold text-[14px] flex justify-between items-center text-slate-900 shrink-0 bg-[#F8FAFC]">
                 面试记录 (Interviews)
-                <button
-                  type="button"
-                  disabled
-                  className="text-slate-400 text-[13px] font-medium cursor-not-allowed"
-                  title="新增面试记录会在后续模块接入"
+                <Link
+                  href={`/applications/${application.id}/interviews/new`}
+                  className="text-[#2563EB] text-[13px] font-medium hover:underline"
                 >
                   + 新增记录
-                </button>
+                </Link>
               </div>
               <div className="overflow-x-auto flex-1 p-0">
                 <table className="w-full border-collapse text-[13px] text-slate-900 text-left">
@@ -259,7 +257,7 @@ export default function ApplicationDetailPage({
                         />
 
                         <div className="text-[13px] font-semibold text-slate-900 mb-0.5">
-                          {getStatusLabel(log.toStatus)}
+                          阶段：{getStatusLabel(log.toStatus)}
                         </div>
                         <div className="text-[11px] text-slate-500 mb-1.5">
                           {formatDateTime(log.changedAt)}
@@ -267,7 +265,7 @@ export default function ApplicationDetailPage({
 
                         {log.note ? (
                           <div className="text-[12px] bg-slate-50 border border-slate-100 p-2 rounded-[6px] text-slate-600 inline-block max-w-[90%] leading-relaxed mt-1">
-                            {log.note}
+                            备注：{log.note}
                           </div>
                         ) : null}
                       </div>

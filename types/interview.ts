@@ -58,3 +58,19 @@ export interface InterviewFormDto {
   result: string;
   notes: string;
 }
+
+export interface CreateInterviewRecordDto {
+  roundName: string;
+  interviewAt: string;
+  mode?: string | null;
+  result?: string | null;
+  notes?: string | null;
+}
+
+export interface InterviewRecordFormDto {
+  roundName: string;
+  interviewAt: string;
+  mode: string;
+  result: string;
+  notes: string;
+}
