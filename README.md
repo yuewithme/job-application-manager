@@ -326,6 +326,7 @@ npx prisma studio
 
 其中包含：
 
+- Vercel + Railway MySQL 的最小上线方案
 - GitHub 仓库准备
 - 环境变量配置
 - 线上 MySQL 配置要求
