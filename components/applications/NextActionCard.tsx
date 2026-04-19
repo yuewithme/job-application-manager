@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import InlineNotice from "@/components/ui/InlineNotice";
 import {
   getTomorrowMorningIso,
   toDateTimeLocalValue,
@@ -26,6 +27,7 @@ export default function NextActionCard({
   const [nextActionAt, setNextActionAt] = useState(toDateTimeLocalValue(initialNextActionAt));
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [submittingAction, setSubmittingAction] = useState<"save" | "snooze" | "complete" | null>(null);
 
   function refreshPage() {
     startTransition(() => {
@@ -36,6 +38,7 @@ export default function NextActionCard({
   async function handleSave() {
     setError(null);
     setMessage(null);
+    setSubmittingAction("save");
 
     const result = await updateApplicationNextAction(applicationId, {
       nextAction: nextAction.trim() || null,
@@ -44,16 +47,19 @@ export default function NextActionCard({
 
     if (!result.success) {
       setError(result.message);
+      setSubmittingAction(null);
       return;
     }
 
     setMessage("下一步动作已更新。");
     refreshPage();
+    setSubmittingAction(null);
   }
 
   async function handleComplete() {
     setError(null);
     setMessage(null);
+    setSubmittingAction("complete");
 
     const result = await updateApplicationNextAction(applicationId, {
       nextAction: null,
@@ -62,6 +68,7 @@ export default function NextActionCard({
 
     if (!result.success) {
       setError(result.message);
+      setSubmittingAction(null);
       return;
     }
 
@@ -69,15 +76,18 @@ export default function NextActionCard({
     setNextActionAt("");
     setMessage("待办已完成，已从今日待办中移除。");
     refreshPage();
+    setSubmittingAction(null);
   }
 
   async function handleSnooze() {
     setError(null);
     setMessage(null);
+    setSubmittingAction("snooze");
 
     const currentAction = nextAction.trim() || initialNextAction;
     if (!currentAction) {
       setError("请先填写下一步动作，再进行稍后处理。");
+      setSubmittingAction(null);
       return;
     }
 
@@ -89,6 +99,7 @@ export default function NextActionCard({
 
     if (!result.success) {
       setError(result.message);
+      setSubmittingAction(null);
       return;
     }
 
@@ -96,6 +107,7 @@ export default function NextActionCard({
     setNextActionAt(toDateTimeLocalValue(tomorrowMorningIso));
     setMessage("已顺延到明天上午 9:00。");
     refreshPage();
+    setSubmittingAction(null);
   }
 
   return (
@@ -135,42 +147,34 @@ export default function NextActionCard({
         />
       </div>
 
-      {error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
-          {error}
-        </div>
-      ) : null}
+      {error ? <InlineNotice tone="error">{error}</InlineNotice> : null}
 
-      {message ? (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-[12px] text-green-700">
-          {message}
-        </div>
-      ) : null}
+      {message ? <InlineNotice tone="success">{message}</InlineNotice> : null}
 
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
           onClick={handleSave}
-          disabled={isPending}
+          disabled={isPending || submittingAction !== null}
           className="px-3 py-2 bg-[#2563EB] text-white rounded text-[12px] font-medium hover:bg-blue-700 transition-colors disabled:cursor-not-allowed disabled:bg-blue-300"
         >
-          保存待办
+          {submittingAction === "save" ? "保存中..." : "保存待办"}
         </button>
         <button
           type="button"
           onClick={handleSnooze}
-          disabled={isPending}
+          disabled={isPending || submittingAction !== null}
           className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded text-[12px] font-medium hover:bg-slate-50 transition-colors disabled:cursor-not-allowed disabled:text-slate-400"
         >
-          稍后处理
+          {submittingAction === "snooze" ? "处理中..." : "稍后处理"}
         </button>
         <button
           type="button"
           onClick={handleComplete}
-          disabled={isPending}
+          disabled={isPending || submittingAction !== null}
           className="px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded text-[12px] font-medium hover:bg-slate-50 transition-colors disabled:cursor-not-allowed disabled:text-slate-400"
         >
-          标记已完成
+          {submittingAction === "complete" ? "处理中..." : "标记已完成"}
         </button>
       </div>
     </section>

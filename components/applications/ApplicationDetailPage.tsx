@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import NextActionCard from "@/components/applications/NextActionCard";
 import { PriorityBadge, StatusBadge } from "@/components/dashboard/Badges";
+import EmptyState from "@/components/ui/EmptyState";
 import { formatDateTime, getStatusLabel } from "@/lib/dashboard-format";
 import type { ApplicationDetailDto } from "@/types";
 
@@ -122,7 +123,15 @@ export default function ApplicationDetailPage({
                     {application.interviews.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                          暂无面试记录
+                          <EmptyState
+                            compact
+                            title="还没有面试记录"
+                            description="新增面试记录后，这里会自动展示每轮时间、形式、结果和备注。"
+                            action={{
+                              label: "新增面试记录",
+                              href: `/applications/${application.id}/interviews/new`,
+                            }}
+                          />
                         </td>
                       </tr>
                     ) : (
@@ -248,9 +257,15 @@ export default function ApplicationDetailPage({
               </div>
               <div className="p-5 flex-1">
                 {application.stageLogs.length === 0 ? (
-                  <div className="flex h-full items-center justify-center text-[13px] text-slate-500">
-                    暂无阶段记录
-                  </div>
+                  <EmptyState
+                    compact
+                    title="还没有阶段日志"
+                    description="当申请状态发生变化时，这里会持续记录阶段、时间和备注。"
+                    action={{
+                      label: "编辑申请",
+                      href: `/applications/${application.id}/edit`,
+                    }}
+                  />
                 ) : (
                   <div className="border-l-2 border-indigo-100 ml-2 space-y-7 mt-2 mb-2 relative">
                     {application.stageLogs.map((log, index) => (

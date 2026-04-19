@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 
+import InlineNotice from "@/components/ui/InlineNotice";
+
 interface InterviewRecordFormPageClientProps {
   applicationId: string;
   companyName: string;
@@ -280,8 +282,8 @@ export default function InterviewRecordFormPageClient({
               </div>
 
               {serverError ? (
-                <div className="md:col-span-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">
-                  {serverError}
+                <div className="md:col-span-2">
+                  <InlineNotice tone="error">{serverError}</InlineNotice>
                 </div>
               ) : null}
             </div>

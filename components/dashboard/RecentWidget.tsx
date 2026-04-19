@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { formatDateTime } from "@/lib/dashboard-format";
 import type { DashboardRecentItemDto } from "@/types";
+import EmptyState from "@/components/ui/EmptyState";
 
 import { PriorityBadge, StatusBadge } from "./Badges";
 
@@ -12,26 +13,29 @@ export default function RecentWidget({ items }: { items: DashboardRecentItemDto[
         最近更新 (Recent Updates)
       </div>
       <div className="overflow-y-auto flex-1 min-h-0">
-        <table className="w-full border-collapse text-[13px] text-slate-900 text-left m-0">
-          <thead className="sticky top-0 z-10 border-b border-slate-200">
-            <tr>
-              <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">公司名称</th>
-              <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">职位名称</th>
-              <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">当前状态</th>
-              <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">优先级</th>
-              <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">后续行动</th>
-              <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">更新于</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 ? (
+        {items.length === 0 ? (
+          <div className="p-3">
+            <EmptyState
+              compact
+              title="还没有最近更新"
+              description="当申请被新增、编辑或推进流程后，最近更新会集中显示在这里。"
+              action={{ label: "去新增申请", href: "/applications/new" }}
+            />
+          </div>
+        ) : (
+          <table className="w-full border-collapse text-[13px] text-slate-900 text-left m-0">
+            <thead className="sticky top-0 z-10 border-b border-slate-200">
               <tr>
-                <td colSpan={6} className="px-[16px] py-[24px] text-center text-slate-500 border-b border-slate-200">
-                  暂无最近更新的申请
-                </td>
+                <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">公司名称</th>
+                <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">职位名称</th>
+                <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">当前状态</th>
+                <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">优先级</th>
+                <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">后续行动</th>
+                <th className="px-[16px] py-[10px] text-[#64748B] font-medium bg-[#F8FAFC]">更新于</th>
               </tr>
-            ) : (
-              items.map((item) => (
+            </thead>
+            <tbody>
+              {items.map((item) => (
                 <tr key={item.id}>
                   <td className="px-[16px] py-[12px] border-b border-slate-200 truncate max-w-[150px]">
                     <Link href={`/applications/${item.id}`} className="hover:underline">
@@ -54,10 +58,10 @@ export default function RecentWidget({ items }: { items: DashboardRecentItemDto[
                     {formatDateTime(item.updatedAt)}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </section>
   );

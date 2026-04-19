@@ -6,6 +6,7 @@ import { useDeferredValue, useEffect, useState, useTransition } from "react";
 
 import NextActionInlineEditor from "@/components/applications/NextActionInlineEditor";
 import { PriorityBadge, StatusBadge } from "@/components/dashboard/Badges";
+import EmptyState from "@/components/ui/EmptyState";
 import {
   type ApplicationDeadlineSort,
   type ApplicationFilterPriority,
@@ -67,6 +68,7 @@ export default function ApplicationListPageClient({
   ]);
 
   const hasFilters = hasActiveApplicationFilters(filters);
+  const showEmptyState = data.items.length === 0;
 
   return (
     <div className="h-screen w-full bg-[#F8FAFC] flex font-sans text-[#0F172A] overflow-hidden">
@@ -210,25 +212,25 @@ export default function ApplicationListPageClient({
                 </tr>
               </thead>
               <tbody>
-                {data.items.length === 0 ? (
+                {showEmptyState ? (
                   <tr>
                     <td colSpan={8} className="px-[16px] py-[40px] text-center text-slate-500">
-                      <div className="flex flex-col items-center gap-2">
-                        <p className="text-[14px] text-slate-600">
-                          {hasFilters ? "未找到符合条件的申请" : "还没有申请记录"}
-                        </p>
-                        <p className="text-[12px] text-slate-400">
-                          {hasFilters ? "试试调整搜索词、筛选条件或排序方式。" : "可以先创建第一条申请。"}
-                        </p>
-                        {!hasFilters ? (
-                          <Link
-                            href="/applications/new"
-                            className="mt-2 px-4 py-2 bg-[#2563EB] text-white rounded text-[13px] font-medium hover:bg-blue-700 transition-colors"
-                          >
-                            去新增申请
-                          </Link>
-                        ) : null}
-                      </div>
+                      <EmptyState
+                        title={hasFilters ? "没有匹配的申请结果" : "还没有申请记录"}
+                        description={
+                          hasFilters
+                            ? "可以调整搜索词、状态、优先级或截止时间排序后再试一次。"
+                            : "从第一条申请开始，后续的待办、Dashboard 和 Offer 管理都会自动串起来。"
+                        }
+                        action={
+                          hasFilters
+                            ? { label: "查看全部申请", href: "/applications" }
+                            : { label: "去新增申请", href: "/applications/new" }
+                        }
+                        secondaryAction={
+                          hasFilters ? { label: "去新增申请", href: "/applications/new" } : undefined
+                        }
+                      />
                     </td>
                   </tr>
                 ) : (

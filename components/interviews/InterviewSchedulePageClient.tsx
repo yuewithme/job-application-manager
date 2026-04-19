@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import EmptyState from "@/components/ui/EmptyState";
 import { formatDateTime } from "@/lib/dashboard-format";
 import type { InterviewScheduleItemDto, InterviewSchedulePageDto } from "@/types";
 
@@ -45,6 +46,8 @@ export default function InterviewSchedulePageClient({
         return sortOrder === "asc" ? leftTime - rightTime : rightTime - leftTime;
       });
   }, [data.items, filterMode, now, sortOrder]);
+  const isFilteredEmpty = filteredData.length === 0;
+  const hasAnyInterviews = data.items.length > 0;
 
   return (
     <div className="h-screen w-full bg-[#F8FAFC] flex font-sans text-[#0F172A] overflow-hidden">
@@ -161,21 +164,32 @@ export default function InterviewSchedulePageClient({
                 </tr>
               </thead>
               <tbody>
-                {filteredData.length === 0 ? (
+                {isFilteredEmpty ? (
                   <tr>
                     <td colSpan={6} className="px-[16px] py-[40px] text-center text-slate-500">
-                      <div className="flex flex-col items-center gap-2">
-                        <p>
-                          {filterMode === "upcoming"
-                            ? "暂无即将开始的面试安排"
-                            : "近期无已结束的面试记录"}
-                        </p>
-                        <p className="text-[12px] text-slate-400">
-                          {filterMode === "upcoming"
-                            ? "可以先去申请详情页补充面试记录。"
-                            : "等面试结果产生后，这里会自动出现历史记录。"}
-                        </p>
-                      </div>
+                      <EmptyState
+                        title={
+                          hasAnyInterviews
+                            ? filterMode === "upcoming"
+                              ? "没有匹配的即将开始面试"
+                              : "没有匹配的已结束面试"
+                            : "还没有面试安排"
+                        }
+                        description={
+                          hasAnyInterviews
+                            ? filterMode === "upcoming"
+                              ? "可以切换到已结束页签，或调整时间排序查看其他面试记录。"
+                              : "等面试完成或产生结果后，历史记录会显示在这里。"
+                            : "去申请详情页新增面试记录后，这里会自动同步展示。"
+                        }
+                        action={
+                          hasAnyInterviews
+                            ? filterMode === "upcoming"
+                              ? { label: "查看已结束", onClick: () => setFilterMode("past") }
+                              : { label: "查看即将开始", onClick: () => setFilterMode("upcoming") }
+                            : { label: "前往申请列表", href: "/applications" }
+                        }
+                      />
                     </td>
                   </tr>
                 ) : (

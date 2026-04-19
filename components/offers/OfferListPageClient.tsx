@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { PriorityBadge } from "@/components/dashboard/Badges";
+import EmptyState from "@/components/ui/EmptyState";
 import { formatDate, formatDateTime, getPriorityLabel } from "@/lib/dashboard-format";
 import { priorityValues, type OfferListPageDto, type PriorityValue } from "@/types";
 
@@ -41,6 +42,7 @@ export default function OfferListPageClient({ data }: OfferListPageClientProps) 
         return sortOrder === "asc" ? leftTime - rightTime : rightTime - leftTime;
       });
   }, [data.items, priorityFilter, searchTerm, sortOrder]);
+  const hasActiveFilters = searchTerm.trim() !== "" || priorityFilter !== "all";
 
   return (
     <div className="h-screen w-full bg-[#F8FAFC] flex font-sans text-[#0F172A] overflow-hidden">
@@ -160,12 +162,25 @@ export default function OfferListPageClient({ data }: OfferListPageClientProps) 
                 {filteredData.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-[16px] py-[40px] text-center text-slate-500">
-                      <div className="flex flex-col items-center gap-2">
-                        <p className="text-[14px] text-slate-600">未找到符合条件的 Offer 记录</p>
-                        <p className="text-[12px] text-slate-400">
-                          可以调整搜索词或优先级筛选条件。
-                        </p>
-                      </div>
+                      <EmptyState
+                        title={hasActiveFilters ? "没有匹配的 Offer 结果" : "还没有 Offer 记录"}
+                        description={
+                          hasActiveFilters
+                            ? "可以清空搜索词或优先级筛选，重新查看全部 Offer 数据。"
+                            : "当申请状态推进到 Offer 后，这里会自动汇总需要跟进的记录。"
+                        }
+                        action={
+                          hasActiveFilters
+                            ? {
+                                label: "查看全部 Offer",
+                                onClick: () => {
+                                  setSearchTerm("");
+                                  setPriorityFilter("all");
+                                },
+                              }
+                            : { label: "返回申请列表", href: "/applications" }
+                        }
+                      />
                     </td>
                   </tr>
                 ) : (

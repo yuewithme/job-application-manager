@@ -7,11 +7,14 @@ import { useState, useTransition } from "react";
 import { formatDateTime, getPriorityLabel } from "@/lib/dashboard-format";
 import { getTomorrowMorningIso, updateApplicationNextAction } from "@/lib/next-action";
 import type { DashboardTodoItemDto } from "@/types";
+import EmptyState from "@/components/ui/EmptyState";
+import InlineNotice from "@/components/ui/InlineNotice";
 
 export default function TodoWidget({ items }: { items: DashboardTodoItemDto[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<"complete" | "snooze" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const priorityColors = {
     high: "border-l-[#EF4444]",
@@ -21,6 +24,7 @@ export default function TodoWidget({ items }: { items: DashboardTodoItemDto[] })
 
   async function handleComplete(applicationId: string) {
     setPendingId(applicationId);
+    setPendingAction("complete");
     setError(null);
 
     const result = await updateApplicationNextAction(applicationId, {
@@ -31,17 +35,20 @@ export default function TodoWidget({ items }: { items: DashboardTodoItemDto[] })
     if (!result.success) {
       setError(result.message);
       setPendingId(null);
+      setPendingAction(null);
       return;
     }
 
     startTransition(() => {
       router.refresh();
-      setPendingId(null);
     });
+    setPendingId(null);
+    setPendingAction(null);
   }
 
   async function handleSnooze(item: DashboardTodoItemDto) {
     setPendingId(item.id);
+    setPendingAction("snooze");
     setError(null);
 
     const result = await updateApplicationNextAction(item.id, {
@@ -52,13 +59,15 @@ export default function TodoWidget({ items }: { items: DashboardTodoItemDto[] })
     if (!result.success) {
       setError(result.message);
       setPendingId(null);
+      setPendingAction(null);
       return;
     }
 
     startTransition(() => {
       router.refresh();
-      setPendingId(null);
     });
+    setPendingId(null);
+    setPendingAction(null);
   }
 
   return (
@@ -67,18 +76,15 @@ export default function TodoWidget({ items }: { items: DashboardTodoItemDto[] })
         今日待办 (Next Actions)
       </div>
       <div className="overflow-y-auto p-3 flex-1 min-h-0">
-        {error ? (
-          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
-            {error}
-          </div>
-        ) : null}
+        {error ? <div className="mb-3"><InlineNotice tone="error">{error}</InlineNotice></div> : null}
         {items.length === 0 ? (
-          <div className="p-4 text-center text-slate-500 text-[13px]">
-            <p>暂无待办事项</p>
-            <Link href="/applications/new" className="mt-2 inline-block text-[#2563EB] hover:underline">
-              去新增申请
-            </Link>
-          </div>
+          <EmptyState
+            compact
+            title="今天没有待办事项"
+            description="等你设置下一步动作后，今天需要跟进的申请会集中出现在这里。"
+            action={{ label: "去新增申请", href: "/applications/new" }}
+            secondaryAction={{ label: "查看全部申请", href: "/applications" }}
+          />
         ) : (
           items.map((item) => (
             <div
@@ -95,19 +101,19 @@ export default function TodoWidget({ items }: { items: DashboardTodoItemDto[] })
               <div className="mt-3 flex items-center gap-2 text-[12px]">
                 <button
                   type="button"
-                  disabled={isPending && pendingId === item.id}
+                  disabled={(isPending || pendingAction !== null) && pendingId === item.id}
                   onClick={() => handleComplete(item.id)}
                   className="rounded border border-slate-300 bg-white px-2.5 py-1 text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
                 >
-                  已完成
+                  {pendingId === item.id && pendingAction === "complete" ? "处理中..." : "已完成"}
                 </button>
                 <button
                   type="button"
-                  disabled={isPending && pendingId === item.id}
+                  disabled={(isPending || pendingAction !== null) && pendingId === item.id}
                   onClick={() => handleSnooze(item)}
                   className="rounded border border-slate-300 bg-white px-2.5 py-1 text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
                 >
-                  稍后处理
+                  {pendingId === item.id && pendingAction === "snooze" ? "处理中..." : "稍后处理"}
                 </button>
                 <Link href={`/applications/${item.id}`} className="text-[#2563EB] hover:underline">
                   查看详情

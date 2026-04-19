@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import InlineNotice from "@/components/ui/InlineNotice";
 import {
   getTomorrowMorningIso,
   toDateTimeLocalValue,
@@ -26,6 +27,7 @@ export default function NextActionInlineEditor({
   const [nextAction, setNextAction] = useState(initialNextAction ?? "");
   const [nextActionAt, setNextActionAt] = useState(toDateTimeLocalValue(initialNextActionAt));
   const [error, setError] = useState<string | null>(null);
+  const [submittingAction, setSubmittingAction] = useState<"save" | "snooze" | "complete" | null>(null);
 
   function refreshPage() {
     startTransition(() => {
@@ -35,6 +37,7 @@ export default function NextActionInlineEditor({
 
   async function handleSave() {
     setError(null);
+    setSubmittingAction("save");
 
     const result = await updateApplicationNextAction(applicationId, {
       nextAction: nextAction.trim() || null,
@@ -43,18 +46,22 @@ export default function NextActionInlineEditor({
 
     if (!result.success) {
       setError(result.message);
+      setSubmittingAction(null);
       return;
     }
 
     setIsOpen(false);
     refreshPage();
+    setSubmittingAction(null);
   }
 
   async function handleSnooze() {
     setError(null);
+    setSubmittingAction("snooze");
     const currentAction = nextAction.trim() || initialNextAction;
     if (!currentAction) {
       setError("先填写动作内容");
+      setSubmittingAction(null);
       return;
     }
 
@@ -66,6 +73,7 @@ export default function NextActionInlineEditor({
 
     if (!result.success) {
       setError(result.message);
+      setSubmittingAction(null);
       return;
     }
 
@@ -73,10 +81,12 @@ export default function NextActionInlineEditor({
     setNextActionAt(toDateTimeLocalValue(tomorrowMorningIso));
     setIsOpen(false);
     refreshPage();
+    setSubmittingAction(null);
   }
 
   async function handleComplete() {
     setError(null);
+    setSubmittingAction("complete");
 
     const result = await updateApplicationNextAction(applicationId, {
       nextAction: null,
@@ -85,6 +95,7 @@ export default function NextActionInlineEditor({
 
     if (!result.success) {
       setError(result.message);
+      setSubmittingAction(null);
       return;
     }
 
@@ -92,6 +103,7 @@ export default function NextActionInlineEditor({
     setNextActionAt("");
     setIsOpen(false);
     refreshPage();
+    setSubmittingAction(null);
   }
 
   return (
@@ -127,39 +139,40 @@ export default function NextActionInlineEditor({
             />
           </div>
 
-          {error ? <p className="mt-2 text-[11px] text-red-500">{error}</p> : null}
+          {error ? <div className="mt-2"><InlineNotice tone="error">{error}</InlineNotice></div> : null}
 
           <div className="mt-3 flex flex-wrap justify-end gap-2">
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="px-2.5 py-1.5 border border-slate-300 rounded text-[12px] text-slate-600 hover:bg-slate-50"
+              disabled={submittingAction !== null}
+              className="px-2.5 py-1.5 border border-slate-300 rounded text-[12px] text-slate-600 hover:bg-slate-50 disabled:text-slate-400"
             >
               取消
             </button>
             <button
               type="button"
               onClick={handleSnooze}
-              disabled={isPending}
+              disabled={isPending || submittingAction !== null}
               className="px-2.5 py-1.5 border border-slate-300 rounded text-[12px] text-slate-600 hover:bg-slate-50 disabled:text-slate-400"
             >
-              稍后
+              {submittingAction === "snooze" ? "处理中..." : "稍后"}
             </button>
             <button
               type="button"
               onClick={handleComplete}
-              disabled={isPending}
+              disabled={isPending || submittingAction !== null}
               className="px-2.5 py-1.5 border border-slate-300 rounded text-[12px] text-slate-600 hover:bg-slate-50 disabled:text-slate-400"
             >
-              完成
+              {submittingAction === "complete" ? "处理中..." : "完成"}
             </button>
             <button
               type="button"
               onClick={handleSave}
-              disabled={isPending}
+              disabled={isPending || submittingAction !== null}
               className="px-2.5 py-1.5 rounded bg-[#2563EB] text-white text-[12px] font-medium hover:bg-blue-700 disabled:bg-blue-300"
             >
-              保存
+              {submittingAction === "save" ? "保存中..." : "保存"}
             </button>
           </div>
         </div>

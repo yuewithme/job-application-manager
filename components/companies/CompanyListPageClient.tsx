@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { StatusBadge } from "@/components/dashboard/Badges";
+import EmptyState from "@/components/ui/EmptyState";
 import { formatDateTime, getStatusLabel } from "@/lib/dashboard-format";
 import { applicationStatusValues, type CompanyListPageDto } from "@/types";
 
@@ -32,6 +33,7 @@ export default function CompanyListPageClient({ data }: CompanyListPageClientPro
           new Date(right.latestUpdatedAt).getTime() - new Date(left.latestUpdatedAt).getTime(),
       );
   }, [data.items, onlyUpcoming, searchTerm, statusFilter]);
+  const hasActiveFilters = searchTerm.trim() !== "" || statusFilter !== "all" || onlyUpcoming;
 
   return (
     <div className="h-screen w-full bg-[#F8FAFC] flex font-sans text-[#0F172A] overflow-hidden">
@@ -153,12 +155,26 @@ export default function CompanyListPageClient({ data }: CompanyListPageClientPro
                 {filteredData.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-[16px] py-[40px] text-center text-slate-500">
-                      <div className="flex flex-col items-center gap-2">
-                        <p className="text-[14px] text-slate-600">未找到符合条件的公司</p>
-                        <p className="text-[12px] text-slate-400">
-                          可以调整搜索词、最高状态筛选或截止条件。
-                        </p>
-                      </div>
+                      <EmptyState
+                        title={hasActiveFilters ? "没有匹配的公司结果" : "还没有公司数据"}
+                        description={
+                          hasActiveFilters
+                            ? "可以清空搜索词、状态筛选或截止条件后重新查看全部公司。"
+                            : "当申请数据逐步增加后，这里会自动聚合出公司维度的统计信息。"
+                        }
+                        action={
+                          hasActiveFilters
+                            ? {
+                                label: "查看全部公司",
+                                onClick: () => {
+                                  setSearchTerm("");
+                                  setStatusFilter("all");
+                                  setOnlyUpcoming(false);
+                                },
+                              }
+                            : { label: "去新增申请", href: "/applications/new" }
+                        }
+                      />
                     </td>
                   </tr>
                 ) : (
