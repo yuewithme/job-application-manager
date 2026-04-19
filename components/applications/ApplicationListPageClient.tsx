@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDeferredValue, useEffect, useState, useTransition } from "react";
 
+import NextActionInlineEditor from "@/components/applications/NextActionInlineEditor";
 import { PriorityBadge, StatusBadge } from "@/components/dashboard/Badges";
 import {
   type ApplicationDeadlineSort,
@@ -265,13 +266,20 @@ export default function ApplicationListPageClient({
                       <td className="px-[16px] py-[12px] text-[#64748B] whitespace-nowrap">
                         {formatDateTime(item.updatedAt)}
                       </td>
-                      <td className="px-[16px] py-[12px] text-right whitespace-nowrap">
-                        <Link
-                          href={`/applications/${item.id}/edit`}
-                          className="text-[#2563EB] hover:text-blue-700 font-medium text-[13px]"
-                        >
-                          编辑
-                        </Link>
+                      <td className="px-[16px] py-[12px] text-right whitespace-nowrap relative">
+                        <div className="inline-flex items-center gap-2">
+                          <Link
+                            href={`/applications/${item.id}/edit`}
+                            className="text-[#2563EB] hover:text-blue-700 font-medium text-[13px]"
+                          >
+                            编辑
+                          </Link>
+                          <NextActionInlineEditor
+                            applicationId={item.id}
+                            initialNextAction={item.nextAction}
+                            initialNextActionAt={item.nextActionAt}
+                          />
+                        </div>
                       </td>
                     </tr>
                   ))

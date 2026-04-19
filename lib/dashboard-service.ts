@@ -137,6 +137,9 @@ export async function getDashboardPageData(): Promise<DashboardPageDto> {
   const tomorrowStart = new Date(todayStart);
   tomorrowStart.setDate(todayStart.getDate() + 1);
 
+  const upcomingDeadlineEnd = new Date(now);
+  upcomingDeadlineEnd.setDate(upcomingDeadlineEnd.getDate() + 7);
+
   const [total, grouped, todoRows, deadlineRows, recentRows] = await Promise.all([
     prisma.application.count(),
     prisma.application.groupBy({
@@ -172,6 +175,7 @@ export async function getDashboardPageData(): Promise<DashboardPageDto> {
       where: {
         deadlineAt: {
           gte: now,
+          lte: upcomingDeadlineEnd,
         },
       },
       select: {

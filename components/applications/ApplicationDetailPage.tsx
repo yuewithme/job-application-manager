@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import NextActionCard from "@/components/applications/NextActionCard";
 import { PriorityBadge, StatusBadge } from "@/components/dashboard/Badges";
 import { formatDateTime, getStatusLabel } from "@/lib/dashboard-format";
 import type { ApplicationDetailDto } from "@/types";
@@ -234,6 +235,12 @@ export default function ApplicationDetailPage({
                 </div>
               </div>
             </section>
+
+            <NextActionCard
+              applicationId={application.id}
+              initialNextAction={application.nextAction}
+              initialNextActionAt={application.nextActionAt}
+            />
 
             <section className="bg-white border border-slate-200 rounded-xl overflow-hidden shrink-0 flex-1 flex flex-col">
               <div className="px-4 py-[14px] border-b border-slate-200 font-semibold text-[14px] text-slate-900 bg-[#F8FAFC]">
