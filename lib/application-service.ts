@@ -39,6 +39,29 @@ async function ensureUserExists(userId: string) {
   }
 }
 
+async function resolveCreateUserId(userId?: string) {
+  if (userId) {
+    await ensureUserExists(userId);
+    return userId;
+  }
+
+  const defaultUser = await prisma.user.upsert({
+    where: {
+      email: "default@jobhunter.local",
+    },
+    update: {},
+    create: {
+      email: "default@jobhunter.local",
+      name: "默认用户",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return defaultUser.id;
+}
+
 function buildListWhere(query: ApplicationListQueryDto): Prisma.ApplicationWhereInput {
   const where: Prisma.ApplicationWhereInput = {};
 
@@ -174,11 +197,11 @@ export async function getApplicationById(
 }
 
 export async function createApplication(input: CreateApplicationDto) {
-  await ensureUserExists(input.userId);
+  const userId = await resolveCreateUserId(input.userId);
 
   const record = await prisma.application.create({
     data: {
-      userId: input.userId,
+      userId,
       companyName: input.companyName,
       jobTitle: input.jobTitle,
       status: input.status,

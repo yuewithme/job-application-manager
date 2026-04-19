@@ -123,10 +123,6 @@ export default function ApplicationFormPageClient({
   const validate = () => {
     const nextErrors: FormErrors = {};
 
-    if (!isEditMode && !formData.userId) {
-      nextErrors.userId = "请选择归属用户。";
-    }
-
     if (!formData.companyName.trim()) {
       nextErrors.companyName = "请填写公司名称。";
     }
@@ -147,7 +143,7 @@ export default function ApplicationFormPageClient({
     }
 
     const payload = {
-      ...(isEditMode ? {} : { userId: formData.userId }),
+      ...(isEditMode ? { userId: formData.userId } : {}),
       companyName: formData.companyName.trim(),
       jobTitle: formData.jobTitle.trim(),
       status: formData.status,
@@ -214,38 +210,6 @@ export default function ApplicationFormPageClient({
       }));
     }
   };
-
-  if (!isEditMode && users.length === 0) {
-    return (
-      <main className="mx-auto flex min-h-screen w-full max-w-4xl items-center justify-center px-6 py-12">
-        <section className="w-full rounded-[24px] border border-slate-200 bg-white p-8 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
-          <div className="inline-flex w-fit items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
-            无可用用户
-          </div>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950">
-            当前还没有可用于创建申请的用户。
-          </h1>
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            由于项目还没有登录系统，新增申请需要先绑定一个已有用户。下一步我可以继续帮你补最小用户初始化方案。
-          </p>
-          <div className="mt-8 flex gap-3">
-            <Link
-              href="/applications"
-              className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded text-[13px] font-medium hover:bg-slate-50 transition-colors"
-            >
-              返回所有申请
-            </Link>
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 bg-[#2563EB] text-white rounded text-[13px] font-medium hover:bg-blue-700 transition-colors"
-            >
-              返回 Dashboard
-            </Link>
-          </div>
-        </section>
-      </main>
-    );
-  }
 
   return (
     <div className="h-screen w-full bg-[#F8FAFC] flex font-sans text-[#0F172A] overflow-hidden">
@@ -386,29 +350,6 @@ export default function ApplicationFormPageClient({
               <div className="col-span-1 border-b border-slate-100 pb-2 md:col-span-2">
                 <h2 className="text-[14px] font-semibold text-slate-800">基本信息</h2>
               </div>
-
-              {!isEditMode ? (
-                <div>
-                  <label className="block text-[13px] font-medium text-slate-700 mb-1.5">
-                    归属用户 <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="userId"
-                    value={formData.userId}
-                    onChange={handleChange}
-                    className={`w-full border ${errors.userId ? "border-red-400" : "border-slate-300"} rounded px-3 py-2 text-[13px] focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] bg-white`}
-                  >
-                    {users.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name ? `${user.name} (${user.email})` : user.email}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.userId ? (
-                    <p className="text-[11px] text-red-500 mt-1">{errors.userId}</p>
-                  ) : null}
-                </div>
-              ) : null}
 
               <div>
                 <label className="block text-[13px] font-medium text-slate-700 mb-1.5">

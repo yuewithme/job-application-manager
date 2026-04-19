@@ -165,9 +165,6 @@ export function validateCreateApplicationInput(
   }
 
   const result: CreateApplicationDto = {
-    userId: readTrimmedString(payload.userId, "userId", errors, {
-      required: true,
-    }) ?? "",
     companyName:
       readTrimmedString(payload.companyName, "companyName", errors, {
         required: true,
@@ -177,6 +174,7 @@ export function validateCreateApplicationInput(
         required: true,
       }) ?? "",
   };
+  const userId = readTrimmedString(payload.userId, "userId", errors);
 
   const status = readEnumValue(
     payload.status,
@@ -195,6 +193,7 @@ export function validateCreateApplicationInput(
   const nextAction = readNullableString(payload.nextAction, "nextAction", errors);
   const nextActionAt = readIsoDate(payload.nextActionAt, "nextActionAt", errors);
 
+  if (userId !== undefined) result.userId = userId;
   if (status !== undefined) result.status = status;
   if (priority !== undefined) result.priority = priority;
   if (city !== undefined) result.city = city;

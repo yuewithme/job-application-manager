@@ -65,7 +65,7 @@ export interface ApplicationDto {
 }
 
 export interface CreateApplicationDto {
-  userId: string;
+  userId?: string;
   companyName: string;
   jobTitle: string;
   status?: ApplicationStatus;
