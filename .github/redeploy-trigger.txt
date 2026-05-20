@@ -1,0 +1,2 @@
+Triggered redeploy on 2026-05-20 after switching Railway plan.
+This file exists only to force a fresh Vercel production deployment with current environment settings.
